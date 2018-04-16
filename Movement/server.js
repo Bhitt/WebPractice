@@ -17,23 +17,28 @@ io.sockets.on('connection', newConnection);	//event handling
 function newConnection(socket){
 	console.log('new connection: ' + socket.id);	//log the connection
 
-	socket.on('clientUpdate', (cData) => { //when client sends update
-        //Broadcast to all clients
-		//io.sockets.emit('mouse',data)
+	//if there is a message called mouse, trigger mouseMsg function
 
-		//client broadcasts to other clients
-		socket.broadcast.emit('sUpdate',sData);	//send the same message back out
-		// console.log(data);
-        
-    });	//if there is a message called mouse, trigger mouseMsg function
+	var sData = {
+    		pX : Math.floor((Math.random() * 300) + 1),
+    		pY : Math.floor((Math.random() * 300) + 1)
+    		// pX:200,
+    		// pY:200
+    };
+
+    socket.on('clientSetUp', cSetup);
+    function cSetup(){
+    	console.log("client set up...");
+    	socket.emit('clientStart',sData);
+    };
 }
 
-var gameObject = [
-    xPos:0;
-    yPos:0;
+// var gameObject = [
+//     xPos:0;
+//     yPos:0;
     
-]
+// ]
 
-var gameObjects{
+// var gameObjects{
     
-}
+// }
