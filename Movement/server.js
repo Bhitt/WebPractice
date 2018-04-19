@@ -17,28 +17,45 @@ io.sockets.on('connection', newConnection);	//event handling
 function newConnection(socket){
 	console.log('new connection: ' + socket.id);	//log the connection
 
+
+
 	//if there is a message called mouse, trigger mouseMsg function
 
-	var sData = {
-    		pX : Math.floor((Math.random() * 300) + 1),
-    		pY : Math.floor((Math.random() * 300) + 1)
-    		// pX:200,
-    		// pY:200
-    };
+	var pInit = new playerObject();
+	console.log(pInit);
 
-    socket.on('clientSetUp', cSetup);
-    function cSetup(){
-    	console.log("client set up...");
-    	socket.emit('clientStart',sData);
-    };
+    socket.on('clientSetUp', () => {
+		console.log("client set up...");
+		socket.emit('clientStart',pInit);
+		gameObjects.push(pInit);
+	});
+
+	socket.on('serverUpdate', (data) => {
+		socket.broadcast.emit('otherClient',data);
+	});
+    
+
+
 }
 
-// var gameObject = [
-//     xPos:0;
-//     yPos:0;
-    
-// ]
+function gameObject(){
+	this.x = getRndInteger(1,400);
+	this.y = getRndInteger(1,400);
+}
 
-// var gameObjects{
-    
-// }
+function playerObject(){
+	this.obj = new gameObject();
+	// this.z;
+	this.rotation = 1;
+	this.speed = 1;
+}
+
+var gameObjects = [];
+
+function server(){
+	
+}
+
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
+}

@@ -5,16 +5,20 @@
 // var camX = pX - 300;
 // var camY = pY - 200;
 
-var staticX = 0;
-var staticY = 0;
+let player2;
 
-var start = true;
+let staticX = 0;
+let staticY = 0;
 
-var socket;
-var pX;
-var pY;
-var camX;
-var camY;
+let start = true;
+
+let socket;
+let pX;
+let pY;
+let camX;
+let camY;
+let change;
+let playerObject;
 
 function setup(){
     //var socket;
@@ -23,58 +27,88 @@ function setup(){
 
     socket = io.connect("http://localhost:3000");
     socket.on('clientStart',startPos);
+    socket.on('otherClient', friendos);
 
     socket.emit('clientSetUp');
 
     frameRate(30);
+
+    //socket.emit('serverUpdate');
+
+    //console.log(farts);
 }
 
-function startPos(sData){
+function startPos(pInit){
     //set starting player position
-    pX = sData.pX;
-    pY = sData.pY;
-    camX = pX - 300;
-    camY = pY - 200;
+    playerObject = pInit;
+    camX = playerObject.obj.x - 300;
+    camY = playerObject.obj.y - 200;
     noStroke();
     fill(255);
-    ellipse(pX,pY,40,40);
-    camera
+    ellipse(playerObject.obj.x,playerObject.obj.y,40,40);
+    camera(camX, camY, 0, 0, 0, 0, 0, 0, 1);
+}
+
+function friendos(data){
+    //if(data == null) return;
+    //console.log(data);
+    player2 = data;
+    // background(32, 179, 100);
+    // noStroke();
+    // fill(55,0,100);
+    // ellipse(data.obj.x,data.obj.y,40,40);
 }
 
 function draw(){
-    
+    if(playerObject == null) return;
+
+    change = false;
+
     background(32, 179, 100);
     if (keyIsDown(87)) {
-        pY -= 50 * 1/30;
-        camY = pY - 200;
+        playerObject.obj.y -= 50 * 1/30;
+        camY = playerObject.obj.y - 200;
+        change =true;
     }
 
     if (keyIsDown(83)) {
-        pY += 50 * 1/30;
-        camY = pY - 200;
+        playerObject.obj.y += 50 * 1/30;
+        camY = playerObject.obj.y - 200;
+        change =true;
     }
 
     if (keyIsDown(65)) {
-        pX -= 50 * 1/30;
-        camX = pX - 300;
+        playerObject.obj.x -= 50 * 1/30;
+        camX = playerObject.obj.x - 300;
+        change =true;
     }
 
     if (keyIsDown(68)) {
-        pX += 50 * 1/30;
-        camX = pX - 300;
+        playerObject.obj.x += 50 * 1/30;
+        camX = playerObject.obj.x - 300;
+        change = true;
     }
     
     camera(camX, camY, 0, 0, 0, 0, 0, 0, 1);
     //y = 0;
     noStroke();
-    
+    //should you not draw unless !null
     // Player
 	fill(200);
-    ellipse(pX, pY, 40, 40);
+    ellipse(playerObject.obj.x, playerObject.obj.y, 40, 40);
 
     noStroke();
     fill(200,300,0);
-    ellipse(staticX,staticY,40,40);
+    rect(staticX,staticY,40,40);
     
+    if(change){
+        socket.emit('serverUpdate',playerObject);
+    }
+
+    if(player2 != null){
+        noStroke();
+        fill(55,0,100);
+        ellipse(player2.obj.x,player2.obj.y,40,40);
+    }
 }
 
